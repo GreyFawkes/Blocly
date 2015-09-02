@@ -5,11 +5,7 @@
 
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:text="Hello, World!"
-        android:textSize="26sp"
-        android:gravity="center"
-        android:layout_gravity="center"/>
+        style="@style/HelloWorld_Text"
+        android:text="Hello, World!" />
 
 </LinearLayout>
