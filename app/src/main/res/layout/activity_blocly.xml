@@ -6,6 +6,7 @@
 
     <TextView
         style="@style/HelloWorld_Text"
-        android:text="Hello, World!" />
+        android:text="Hello, World!"
+        android:id="@+id/hello_world"/>
 
 </LinearLayout>
