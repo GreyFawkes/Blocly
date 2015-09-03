@@ -23,7 +23,7 @@ public class RobotoTextView extends TextView{
     }
 
     public RobotoTextView(Context context, AttributeSet attrs) {
-        super(context);
+        super(context, attrs);
         extractFont(attrs);
     }
 
