@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.widget.ImageView;
 
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -20,7 +22,10 @@ import io.bloc.android.blocly.ui.adapter.ItemAdapter;
  */
 public class BloclyActivity extends Activity{
 
+    private static final String TAG = "Blocly-Activity";
+
     private ItemAdapter mItemAdapter;
+    private ImageView mBackground;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +49,12 @@ public class BloclyActivity extends Activity{
         ImageLoader.getInstance().init(configuration);
 
 
+        mBackground = (ImageView) findViewById(R.id.iv_activity_background);
+
+        
+
+
+
         mItemAdapter = new ItemAdapter();
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv_activity_blocly);
@@ -51,5 +62,8 @@ public class BloclyActivity extends Activity{
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mItemAdapter);
+
+        //throw an error log here for assignment, just to show i can
+        Log.i(TAG, "Hi message!!!", new Throwable());
     }
 }
