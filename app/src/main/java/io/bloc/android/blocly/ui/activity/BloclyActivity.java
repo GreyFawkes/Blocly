@@ -3,6 +3,8 @@ package io.bloc.android.blocly.ui.activity;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -34,10 +36,17 @@ public class BloclyActivity extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_blocly);
 
-        //setting the image background for imageView
+        //setting the image background for imageView, using a already downloaded image
         mBackground = (ImageView) findViewById(R.id.iv_activity_background);
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.smiley);
-        mBackground.setImageBitmap(bitmap);
+
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            Drawable background = getResources().getDrawable(R.drawable.smiley);
+            mBackground.setBackground(background);
+        } else {
+            Bitmap background = BitmapFactory.decodeResource(getResources(), R.drawable.smiley);
+            mBackground.setImageBitmap(background);
+        }
 
         DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
                 .cacheOnDisk(true)
