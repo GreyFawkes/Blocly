@@ -1,10 +1,6 @@
 package io.bloc.android.blocly.ui.activity;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -36,18 +32,6 @@ public class BloclyActivity extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_blocly);
 
-        //setting the image background for imageView, using a already downloaded image
-        mBackground = (ImageView) findViewById(R.id.iv_activity_background);
-
-
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            Drawable background = getResources().getDrawable(R.drawable.smiley);
-            mBackground.setBackground(background);
-        } else {
-            Bitmap background = BitmapFactory.decodeResource(getResources(), R.drawable.smiley);
-            mBackground.setImageBitmap(background);
-        }
-
         DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
                 .cacheOnDisk(true)
                 .cacheInMemory(true)
@@ -64,8 +48,26 @@ public class BloclyActivity extends Activity{
 
         ImageLoader.getInstance().init(configuration);
 
+        ImageLoader imageLoader = ImageLoader.getInstance();
 
 
+        mBackground = (ImageView) findViewById(R.id.iv_activity_background);
+
+        //setting the image background for imageView, using an image in drawables
+
+//        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+//            Drawable background = getResources().getDrawable(R.drawable.smiley);
+//            mBackground.setBackground(background);
+//        } else {
+//            Bitmap background = BitmapFactory.decodeResource(getResources(), R.drawable.smiley);
+//            mBackground.setImageBitmap(background);
+//        }
+
+        //setting the background for imageView using an image off the internet using ImageLoader
+
+
+        //download image off the internet
+        imageLoader.displayImage("http://www.drodd.com/images12/smiley-face-clip-art15.jpg", mBackground);
 
         mItemAdapter = new ItemAdapter();
 
