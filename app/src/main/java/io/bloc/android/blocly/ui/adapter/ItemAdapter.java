@@ -1,6 +1,7 @@
 package io.bloc.android.blocly.ui.adapter;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -116,6 +117,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
         public void onClick(View v) {
             Log.i(TAG, "message");
             Toast.makeText(v.getContext(), rssItem.getTitle(), Toast.LENGTH_SHORT).show();
+
+            //make the background of the view a different color... also seems to change the
+                //background of other views as well
+            v.setBackgroundColor(Color.CYAN);
         }
     }
 
