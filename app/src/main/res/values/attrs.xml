@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>\
     <declare-styleable name="Roboto">
+
         <attr name="robotoFont" format="enum">
             <enum name="Black" value="0"/>
             <enum name="BlackItalic" value="1"/>
@@ -21,5 +22,6 @@
             <enum name="CondensedLightItalic" value="16"/>
             <enum name="CondensedRegular" value="17"/>
         </attr>
+
     </declare-styleable>
 </resources>
