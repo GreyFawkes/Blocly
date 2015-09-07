@@ -118,9 +118,9 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
             Log.i(TAG, "message");
             Toast.makeText(v.getContext(), rssItem.getTitle(), Toast.LENGTH_SHORT).show();
 
-            //make the background of the view a different color... also seems to change the
-                //background of other views as well
+                //setting the background programmatically
             v.setBackgroundColor(Color.CYAN);
+
         }
     }
 
