@@ -25,6 +25,7 @@
 
         <attr name="condensed" format="boolean"/>
 
+
         <attr name="robotoStyle" format="integer">
             <flag name="thin" value="10"/>
             <flag name="light" value="5"/>

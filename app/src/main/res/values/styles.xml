@@ -24,7 +24,7 @@
     <style name="Body1">
         <item name="android:textColor">@color/text_secondary</item>
         <item name="android:textSize">14sp</item>
-        <item name="robotoFont">Medium</item>
+        <item name="robotoStyle">bold</item>
     </style>
 
-</resources>
+    </resources>

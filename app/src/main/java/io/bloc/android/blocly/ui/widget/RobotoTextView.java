@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.TextView;
 
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import io.bloc.android.blocly.R;
 public class RobotoTextView extends TextView{
 
     private static Map<String, Typeface> sTypefaces = new HashMap<String, Typeface>();
+    private static final String TAG = "RobotoTextView";
 
     public RobotoTextView(Context context) {
         super(context);
@@ -44,17 +46,48 @@ public class RobotoTextView extends TextView{
         TypedArray typedArray = getContext().getTheme().obtainStyledAttributes(
                 attrs, R.styleable.Roboto, 0, 0);
 
+
         int robotoFontIndex = typedArray.getInteger(R.styleable.Roboto_robotoFont, -1);
+        boolean robotoCondensedBoolean = typedArray.getBoolean(R.styleable.Roboto_condensed, false);
+        int robotoFontStyleValue = typedArray.getInteger(R.styleable.Roboto_robotoStyle, -1);
+
 
         typedArray.recycle();
 
         String[] stringArray = getResources().getStringArray(R.array.roboto_font_file_names);
-        if(robotoFontIndex < 0 || robotoFontIndex >= stringArray.length) {
+        if(robotoFontIndex < -1 || robotoFontIndex >= stringArray.length) {
             return;
         }
 
-        String robotoFont = stringArray[robotoFontIndex];
+        String robotoFont;
         Typeface robotoTypeface = null;
+
+         Log.i(TAG, "font index value : " + String.valueOf(robotoFontIndex));
+
+        if(robotoFontIndex != -1) {
+            robotoFont = stringArray[robotoFontIndex];
+        } else if (robotoFontIndex == -1 && robotoFontStyleValue > 0){
+
+
+            Log.i(TAG, "font style value : " + String.valueOf(robotoFontStyleValue));
+            Log.i(TAG, "font condensed boolean : " + String.valueOf(robotoCondensedBoolean));
+
+            //magic happens here to make the attribute work
+            if(robotoCondensedBoolean) {
+
+                if(robotoFontStyleValue < 8) {
+                    robotoFont = stringArray[robotoFontStyleValue + 10];
+                } else {
+                    robotoFont = stringArray[stringArray.length-1];
+                }
+            } else {
+                robotoFont = stringArray[robotoFontStyleValue];
+            }
+
+
+        } else {
+            return;
+        }
 
         if (sTypefaces.containsKey(robotoFont)) {
             robotoTypeface = sTypefaces.get(robotoFont);
