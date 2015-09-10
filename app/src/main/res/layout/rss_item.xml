@@ -99,7 +99,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
-        <io.bloc.android.blocly.ui.widget.RobotoTextView
+        <io.bloc.android.blocly.ui.widget.RobotoButton
             style="@style/Button"
             android:id="@+id/tv_rss_item_visit_site"
             android:text="@string/visit_site"
@@ -108,7 +108,8 @@
             android:layout_marginTop="8dp"
             android:paddingTop="8dp"
             android:paddingRight="8dp"
-            android:paddingBottom="8dp"/>
+            android:paddingBottom="8dp"
+            android:background="@drawable/button_visit_site"/>
 
     </LinearLayout>
 

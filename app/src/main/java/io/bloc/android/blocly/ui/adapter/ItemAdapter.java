@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -62,7 +63,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
 
         View expandedContentWrapper;
         TextView expandedContent;
-        TextView visitSite;
+        Button visitSite;
 
         RssItem rssItem;
 
@@ -81,7 +82,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
 
             expandedContentWrapper = itemView.findViewById(R.id.ll_rss_item_expanded_content_wrapper);
             expandedContent = (TextView) itemView.findViewById(R.id.tv_rss_item_content_full);
-            visitSite = (TextView) itemView.findViewById(R.id.tv_rss_item_visit_site);
+            visitSite = (Button) itemView.findViewById(R.id.tv_rss_item_visit_site);
 
             itemView.setOnClickListener(this);
 
