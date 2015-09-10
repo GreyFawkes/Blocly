@@ -50,6 +50,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
 
     class ItemAdapterViewHolder extends RecyclerView.ViewHolder implements ImageLoadingListener, View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
+        boolean contentExpanded;
 
         TextView title;
         TextView feed;
@@ -58,6 +59,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
         ImageView headerImage;
         CheckBox archiveCheckbox;
         CheckBox favoriteCheckbox;
+
+        View expandedContentWrapper;
+        TextView expandedContent;
+        TextView visitSite;
 
         RssItem rssItem;
 
@@ -74,7 +79,13 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
             archiveCheckbox = (CheckBox) itemView.findViewById(R.id.cb_rss_item_check_mark);
             favoriteCheckbox = (CheckBox) itemView.findViewById(R.id.cb_rss_item_favorite_star);
 
+            expandedContentWrapper = itemView.findViewById(R.id.ll_rss_item_expanded_content_wrapper);
+            expandedContent = (TextView) itemView.findViewById(R.id.tv_rss_item_content_full);
+            visitSite = (TextView) itemView.findViewById(R.id.tv_rss_item_visit_site);
+
             itemView.setOnClickListener(this);
+
+            visitSite.setOnClickListener(this);
 
             archiveCheckbox.setOnCheckedChangeListener(this);
             favoriteCheckbox.setOnCheckedChangeListener(this);
@@ -86,6 +97,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
             feed.setText(rssFeed.getTitle());
             title.setText(rssItem.getTitle());
             content.setText(rssItem.getDescription());
+            expandedContent.setText(rssItem.getDescription());
             if(rssItem.getImageUrl() != null) {
 
                 headerWrapper.setVisibility(View.VISIBLE);
@@ -126,7 +138,13 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
         @Override
         public void onClick(View v) {
             Log.i(TAG, "message");
-            Toast.makeText(v.getContext(), rssItem.getTitle(), Toast.LENGTH_SHORT).show();
+           if(v == itemView) {
+               contentExpanded = !contentExpanded;
+               expandedContentWrapper.setVisibility(contentExpanded ? View.VISIBLE : View.GONE);
+               content.setVisibility(contentExpanded ? View.GONE : View.VISIBLE);
+           } else {
+               Toast.makeText(v.getContext(), "Visit " + rssItem.getUrl(), Toast.LENGTH_SHORT).show();
+           }
         }
 
         @Override
