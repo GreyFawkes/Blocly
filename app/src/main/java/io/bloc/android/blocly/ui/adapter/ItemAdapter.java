@@ -100,6 +100,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
             title.setText(rssItem.getTitle());
             content.setText(rssItem.getDescription());
             expandedContent.setText(rssItem.getDescription());
+
             if(rssItem.getImageUrl() != null) {
 
                 headerWrapper.setVisibility(View.VISIBLE);
@@ -211,6 +212,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
             contentExpanded = expand;
 
         }
+
 
         private void startAnimator(int start, int end, ValueAnimator.AnimatorUpdateListener animatorUpdateListener) {
             ValueAnimator valueAnimator = ValueAnimator.ofInt(start, end);
