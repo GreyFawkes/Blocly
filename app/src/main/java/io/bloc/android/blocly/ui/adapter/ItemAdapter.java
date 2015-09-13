@@ -102,13 +102,46 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
             expandedContent.setText(rssItem.getDescription());
 
             if(rssItem.getImageUrl() != null) {
+//            if(false){
 
                 headerWrapper.setVisibility(View.VISIBLE);
-                headerImage.setVisibility(View.INVISIBLE);
+                headerImage.setVisibility(View.VISIBLE);
+                headerImage.setAlpha(0f);
+                int imageHeight = headerWrapper.getHeight();
+                startAnimator(0, imageHeight, new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator animation) {
+
+                        float animatedFraction = animation.getAnimatedFraction();
+
+                        headerImage.setAlpha(animatedFraction);
+
+                    }
+                });
 
                 ImageLoader.getInstance().loadImage(rssItem.getImageUrl(), this);
             } else {
-                headerWrapper.setVisibility(View.GONE);
+
+                int wrapperHeight = headerWrapper.getHeight();
+
+                startAnimator(wrapperHeight, 0, new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator animation) {
+                        float animatedFraction = animation.getAnimatedFraction();
+                        float alpha = 1f - animatedFraction;
+
+                        headerImage.setAlpha(alpha);
+                        headerWrapper.setAlpha(alpha);
+
+                        if(alpha == 0f) {
+                            headerImage.setVisibility(View.GONE);
+                            headerWrapper.setVisibility(View.GONE);
+                        }
+
+
+                    }
+                });
+
             }
         }
 
@@ -162,9 +195,12 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
                 return;
             }
 
+                //get the starting height of the content and the final height
             int startingHeight = expandedContentWrapper.getMeasuredHeight();
             int finalHeight = content.getMeasuredHeight();
 
+
+                //stuff
             if(expand){
                 startingHeight = finalHeight;
                 expandedContentWrapper.setAlpha(0f);
@@ -177,10 +213,12 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
 
                 finalHeight = expandedContentWrapper.getMeasuredHeight();
 
+                //otherwise make the content visible
             } else {
                 content.setVisibility(View.VISIBLE);
             }
 
+                //start animation
             startAnimator(startingHeight, finalHeight, new ValueAnimator.AnimatorUpdateListener() {
 
                 @Override
