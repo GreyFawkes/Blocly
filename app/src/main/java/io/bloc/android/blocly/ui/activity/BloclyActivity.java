@@ -19,6 +19,7 @@ import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
 import io.bloc.android.blocly.R;
 import io.bloc.android.blocly.ui.adapter.ItemAdapter;
+import io.bloc.android.blocly.ui.adapter.NavigationDrawerAdapter;
 
 /**
  * Created by Administrator on 9/1/2015.
@@ -28,6 +29,7 @@ public class BloclyActivity extends ActionBarActivity{
     private ItemAdapter mItemAdapter;
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
+    private NavigationDrawerAdapter mNavigationDrawerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +69,12 @@ public class BloclyActivity extends ActionBarActivity{
 
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, 0, 0);
         mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+        mNavigationDrawerAdapter = new NavigationDrawerAdapter();
+        RecyclerView navigationRecyclerView = (RecyclerView) findViewById(R.id.rv_nav_activity_blocly);
+        navigationRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        navigationRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        navigationRecyclerView.setAdapter(mNavigationDrawerAdapter);
     }
 
 

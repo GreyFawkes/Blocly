@@ -16,6 +16,14 @@
         <item name="color">@color/actionBarItems</item>
     </style>
 
+    <style name="Drawer_Navigation_Item">
+        <item name="android:textSize">14sp</item>
+        <item name="robotoFont">Medium</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textColor">@drawable/drawer_nav_item</item>
+    </style>
+
     <style name="Headline">
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:textSize">24sp</item>
