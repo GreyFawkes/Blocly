@@ -9,6 +9,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.MenuItem;
 
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
@@ -67,6 +68,10 @@ public class BloclyActivity extends ActionBarActivity{
 
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, 0, 0);
         mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+        mDrawerLayout.openDrawer(Gravity.LEFT);
+
+
     }
 
 
@@ -85,7 +90,7 @@ public class BloclyActivity extends ActionBarActivity{
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(mDrawerToggle.onOptionsItemSelected(item)) {
-            return  true;
+            return true;
         }
          return super.onOptionsItemSelected(item);
     }

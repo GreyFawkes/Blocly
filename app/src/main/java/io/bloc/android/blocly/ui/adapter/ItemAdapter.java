@@ -48,8 +48,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
         return BloclyApplication.getSharedDataSource().getItems().size();
     }
 
-
-
     class ItemAdapterViewHolder extends RecyclerView.ViewHolder implements ImageLoadingListener, View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
         boolean contentExpanded;
