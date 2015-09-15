@@ -1,5 +1,6 @@
 package io.bloc.android.blocly.ui.adapter;
 
+
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,24 +17,24 @@ import io.bloc.android.blocly.api.model.RssFeed;
  */
 public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDrawerAdapter.ViewHolder> {
 
-    public enum NavigationOptions {
-        NAVIGATION_OPTIONS_INBOX,
-        NAVIGATION_OPTIONS_FAVORITES,
-        NAVIGATION_OPTIONS_ARCHIVED
+    public enum NavigationOption {
+        NAVIGATION_OPTION_INBOX,
+        NAVIGATION_OPTION_FAVORITES,
+        NAVIGATION_OPTION_ARCHIVED
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int position) {
-        View inflate = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.rss_drawer_item, viewGroup, false);
+        View inflate = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.navigation_item,viewGroup, false);
         return new ViewHolder(inflate);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int position) {
         RssFeed rssFeed = null;
-
-        if(position >= NavigationOptions.values().length) {
-            int feedPosition = position - NavigationOptions.values().length;
+        // #6
+        if (position >= NavigationOption.values().length) {
+            int feedPosition = position - NavigationOption.values().length;
             rssFeed = BloclyApplication.getSharedDataSource().getFeeds().get(feedPosition);
         }
         viewHolder.update(position, rssFeed);
@@ -41,8 +42,8 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
 
     @Override
     public int getItemCount() {
-
-        return NavigationOptions.values().length
+        // #4
+        return NavigationOption.values().length
                 + BloclyApplication.getSharedDataSource().getFeeds().size();
     }
 
@@ -62,35 +63,39 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
             itemView.setOnClickListener(this);
         }
 
-        @Override
-        public void onClick(View v) {
-            Toast.makeText(v.getContext(), "Nothing... Yet!", Toast.LENGTH_SHORT).show();
-        }
-
         void update(int position, RssFeed rssFeed) {
-
-            boolean shouldShowTopPadding = position == NavigationOptions.NAVIGATION_OPTIONS_INBOX.ordinal()
-                    || position == NavigationOptions.values().length;
+            boolean shouldShowTopPadding = position == NavigationOption.NAVIGATION_OPTION_INBOX.ordinal()
+                    || position == NavigationOption.values().length;
             topPadding.setVisibility(shouldShowTopPadding ? View.VISIBLE : View.GONE);
 
-            boolean shouldShowBottomPadding = position == NavigationOptions.NAVIGATION_OPTIONS_ARCHIVED.ordinal()
+            boolean shouldShowBottomPadding = position == NavigationOption.NAVIGATION_OPTION_ARCHIVED.ordinal()
                     || position == getItemCount() - 1;
             bottomPadding.setVisibility(shouldShowBottomPadding ? View.VISIBLE : View.GONE);
 
-            divider.setVisibility(position == NavigationOptions.NAVIGATION_OPTIONS_ARCHIVED.ordinal()
-                ? View.VISIBLE : View.GONE);
+            divider.setVisibility(position == NavigationOption.NAVIGATION_OPTION_ARCHIVED.ordinal()
+                    ? View.VISIBLE : View.GONE);
 
-            if(position < NavigationOptions.values().length) {
-                int[] titleTexts = new int[] {
-                        R.string.navigation_option_inbox,
+            if (position < NavigationOption.values().length) {
+                // #5
+                int[] titleTexts = new int[] {R.string.navigation_option_inbox,
                         R.string.navigation_option_favorites,
                         R.string.navigation_option_archived};
                 title.setText(titleTexts[position]);
             } else {
                 title.setText(rssFeed.getTitle());
             }
+        }
 
+         /*
+          * OnClickListener
+          */
+
+        @Override
+        public void onClick(View v) {
+            Toast.makeText(v.getContext(), "Nothing… yet!", Toast.LENGTH_SHORT).show();
         }
     }
+
+
 
 }

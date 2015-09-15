@@ -76,8 +76,6 @@ public class BloclyActivity extends ActionBarActivity{
         navigationRecyclerView.setItemAnimator(new DefaultItemAnimator());
         navigationRecyclerView.setAdapter(mNavigationDrawerAdapter);
     }
-
-
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -97,4 +95,5 @@ public class BloclyActivity extends ActionBarActivity{
         }
          return super.onOptionsItemSelected(item);
     }
+
 }
