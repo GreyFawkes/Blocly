@@ -10,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -24,7 +25,7 @@ import io.bloc.android.blocly.ui.adapter.NavigationDrawerAdapter;
 /**
  * Created by Administrator on 9/1/2015.
  */
-public class BloclyActivity extends ActionBarActivity{
+public class BloclyActivity extends ActionBarActivity implements NavigationDrawerAdapter.Callbacks {
 
     private ItemAdapter mItemAdapter;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -71,10 +72,12 @@ public class BloclyActivity extends ActionBarActivity{
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         mNavigationDrawerAdapter = new NavigationDrawerAdapter();
+        mNavigationDrawerAdapter.setCallbacks(this);
         RecyclerView navigationRecyclerView = (RecyclerView) findViewById(R.id.rv_nav_activity_blocly);
         navigationRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         navigationRecyclerView.setItemAnimator(new DefaultItemAnimator());
         navigationRecyclerView.setAdapter(mNavigationDrawerAdapter);
+
     }
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -96,4 +99,8 @@ public class BloclyActivity extends ActionBarActivity{
          return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void printMessage(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
 }
