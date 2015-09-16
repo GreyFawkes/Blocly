@@ -20,13 +20,15 @@ import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
 import io.bloc.android.blocly.R;
 import io.bloc.android.blocly.api.model.RssFeed;
+import io.bloc.android.blocly.api.model.RssItem;
 import io.bloc.android.blocly.ui.adapter.ItemAdapter;
 import io.bloc.android.blocly.ui.adapter.NavigationDrawerAdapter;
 
 /**
  * Created by Administrator on 9/1/2015.
  */
-public class BloclyActivity extends ActionBarActivity implements NavigationDrawerAdapter.NavigationDrawerAdapterDelegate{
+public class BloclyActivity extends ActionBarActivity
+        implements NavigationDrawerAdapter.NavigationDrawerAdapterDelegate, ItemAdapter.ItemAdapterDelegate{
 
     private ItemAdapter mItemAdapter;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -111,5 +113,38 @@ public class BloclyActivity extends ActionBarActivity implements NavigationDrawe
         mDrawerLayout.closeDrawers();
         Toast.makeText(this, "Show RSS items from " + feed.getTitle(), Toast.LENGTH_SHORT).show();
 
+    }
+
+    @Override
+    public void didExpandItem(RssItem item) {
+        Toast.makeText(this, item.getTitle() + " expanded", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void didContractItem(RssItem item) {
+        Toast.makeText(this, item.getTitle() + " contracted", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void wantsToVisitSite(RssItem item) {
+        Toast.makeText(this, "user wants to visit " + item.getUrl(), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void toggleIsFavorite(RssItem item, boolean isChecked) {
+        if(isChecked) {
+            Toast.makeText(this, item.getTitle() + " favorited", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, item.getTitle() + "item unfavorited", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void toggleDidArchiveItem(RssItem item, boolean isChecked) {
+        if(isChecked) {
+            Toast.makeText(this, item.getTitle() + " archived", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, item.getTitle() + " unarchived", Toast.LENGTH_SHORT).show();
+        }
     }
 }

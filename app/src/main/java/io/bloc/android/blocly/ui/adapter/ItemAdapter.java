@@ -18,6 +18,8 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
+import java.lang.ref.WeakReference;
+
 import io.bloc.android.blocly.BloclyApplication;
 import io.bloc.android.blocly.R;
 import io.bloc.android.blocly.api.DataSource;
@@ -30,6 +32,27 @@ import io.bloc.android.blocly.api.model.RssItem;
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterViewHolder>{
 
     private static final String TAG = ItemAdapter.class.getSimpleName();
+
+    public interface ItemAdapterDelegate {
+        void didExpandItem(RssItem item);
+        void didContractItem(RssItem item);
+        void wantsToVisitSite(RssItem item);
+        void toggleIsFavorite(RssItem item, boolean isChecked);
+        void toggleDidArchiveItem(RssItem item, boolean isChecked);
+    }
+
+    WeakReference<ItemAdapterDelegate> delegate;
+
+    public ItemAdapterDelegate getDelegate() {
+        if(delegate == null) {
+            return null;
+        }
+        return delegate.get();
+    }
+
+    public void setDelegate(ItemAdapterDelegate delegate) {
+        this.delegate = new WeakReference<ItemAdapterDelegate>(delegate);
+    }
 
     @Override
     public ItemAdapterViewHolder onCreateViewHolder(ViewGroup viewGroup, int index){
@@ -147,12 +170,21 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
                animateContent(!contentExpanded);
            } else {
                Toast.makeText(v.getContext(), "Visit " + rssItem.getUrl(), Toast.LENGTH_SHORT).show();
+               getDelegate().wantsToVisitSite(rssItem);
            }
         }
 
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             Log.v(TAG, "Checked changed to: " + isChecked);
+
+           if(buttonView == favoriteCheckbox) {
+               getDelegate().toggleIsFavorite(rssItem, isChecked);
+           }
+           if(buttonView == archiveCheckbox) {
+               getDelegate().toggleDidArchiveItem(rssItem, isChecked);
+           }
+
         }
 
         private void animateContent(final boolean expand) {
@@ -165,6 +197,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
             int finalHeight = content.getMeasuredHeight();
 
             if(expand){
+                getDelegate().didExpandItem(rssItem);
+
                 startingHeight = finalHeight;
                 expandedContentWrapper.setAlpha(0f);
                 expandedContentWrapper.setVisibility(View.VISIBLE);
@@ -177,6 +211,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
                 finalHeight = expandedContentWrapper.getMeasuredHeight();
 
             } else {
+                getDelegate().didContractItem(rssItem);
+
                 content.setVisibility(View.VISIBLE);
             }
 
