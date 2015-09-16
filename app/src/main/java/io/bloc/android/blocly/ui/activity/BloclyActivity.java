@@ -61,6 +61,7 @@ public class BloclyActivity extends ActionBarActivity
 
 
         mItemAdapter = new ItemAdapter();
+        mItemAdapter.setDelegate(this);
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv_activity_blocly);
 
