@@ -167,7 +167,17 @@ public class BloclyActivity extends ActionBarActivity implements NavigationDrawe
         if(mDrawerToggle.onOptionsItemSelected(item)) {
             return  true;
         }
-        Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
+      //  Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
+
+        if(item.getTitle() == getResources().getString(R.string.menu_search)) {
+            Toast.makeText(this, "Searching is fun", Toast.LENGTH_SHORT).show();
+        } else if (item.getTitle() == getResources().getString(R.string.menu_share)) {
+            Toast.makeText(this, "I love to Share", Toast.LENGTH_SHORT).show();
+        } else if (item.getTitle() == getResources().getString(R.string.menu_refresh)) {
+            Toast.makeText(this, "Refresh it up...", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Mark 'em all", Toast.LENGTH_SHORT).show();
+        }
         return super.onOptionsItemSelected(item);
     }
 
