@@ -40,12 +40,15 @@ public class BloclyActivity extends ActionBarActivity
         ItemAdapter.Delegate,
         ItemAdapter.DataSource {
 
+    private static final String TAG = "BloclyActivity";
+
     private ItemAdapter mItemAdapter;
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
     private NavigationDrawerAdapter mNavigationDrawerAdapter;
     private Menu mMenu;
     private View mOverflowButton;
+    private RecyclerView mRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,11 +79,11 @@ public class BloclyActivity extends ActionBarActivity
         mItemAdapter.setDataSource(this);
         mItemAdapter.setDelegate(this);
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv_activity_blocly);
+        mRecyclerView = (RecyclerView) findViewById(R.id.rv_activity_blocly);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(mItemAdapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mRecyclerView.setAdapter(mItemAdapter);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.dl_activity_blocly);
@@ -222,23 +225,64 @@ public class BloclyActivity extends ActionBarActivity
         int positionToExpand = -1;
         int positionToContract = -1;
 
-        if(itemAdapter.getExpandedItem() != null) {
+        int selectedPosition = BloclyApplication.getSharedDataSource().getItems().
+                indexOf(rssItem);
+
+        //get the pixel length of the views in the RecyclerView
+
+        //if there is a currently expanded item
+        if (itemAdapter.getExpandedItem() != null) {
             positionToContract = BloclyApplication.getSharedDataSource().getItems().
                     indexOf(itemAdapter.getExpandedItem());
 
         }
-        if(itemAdapter.getExpandedItem() != rssItem) {
+
+        //if an item, other than the currently expanded item is selected
+        if (itemAdapter.getExpandedItem() != rssItem) {
             positionToExpand = BloclyApplication.getSharedDataSource().getItems().
                     indexOf(rssItem);
             itemAdapter.setExpandedItem(rssItem);
         } else {
             itemAdapter.setExpandedItem(null);
         }
-        if(positionToContract > -1) {
+        if (positionToContract > -1) {
             itemAdapter.notifyItemChanged(positionToContract);
         }
-        if(positionToExpand > -1) {
+        if (positionToExpand > -1) {
             itemAdapter.notifyItemChanged(positionToExpand);
         }
+
+
+
+
+//        int viewHeight;
+//
+//        //cheap, crude and gets the job done to find the original height
+//        int heightPos0 = mRecyclerView.getChildAt(0).getHeight();
+//        int heightPos1 = mRecyclerView.getChildAt(1).getHeight();
+//        viewHeight = (heightPos0 < heightPos1) ? heightPos0 : heightPos1;
+//
+//        //if the position to expand is not the last item in the view...
+//        if(selectedPosition < itemAdapter.getItemCount() - 1) {
+
+        //used altenativv scrollToPosition(int position, int offset) instead of scrollTo(x,y)
+        //because scrollTo will not work on some Samsung devices
+        //  mRecyclerView.scrollTo(selectedPosition*viewHeight, 0);
+
+        //}
+
+
+        
+        //the original solution proposed would not work - new solution from :
+        //  http://stackoverflow.com/questions/28428409/java-lang-unsupportedoperationexception-recyclerview-does-not-support-scrolling/28448691#28448691
+
+        //this is a much better solution
+        RecyclerView.LayoutManager manager = mRecyclerView.getLayoutManager();
+        if (manager instanceof LinearLayoutManager) {
+            LinearLayoutManager linearLayoutManager = (LinearLayoutManager) manager;
+            linearLayoutManager.scrollToPositionWithOffset(selectedPosition, 0);
+        }
+
+
     }
 }
