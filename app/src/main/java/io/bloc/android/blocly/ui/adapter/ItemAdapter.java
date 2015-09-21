@@ -12,7 +12,6 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
@@ -38,6 +37,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
     public interface Delegate {
 
         void onItemClicked(ItemAdapter itemAdapter, RssItem rssItem);
+        void onVisitClicked(ItemAdapter itemAdapter, RssItem rssItem);
     }
 
     private static final String TAG = ItemAdapter.class.getSimpleName();
@@ -224,7 +224,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
                    getDelegate().onItemClicked(ItemAdapter.this, rssItem);
                }
            } else {
-               Toast.makeText(v.getContext(), "Visit " + rssItem.getUrl(), Toast.LENGTH_SHORT).show();
+              // Toast.makeText(v.getContext(), "Visit " + rssItem.getUrl(), Toast.LENGTH_SHORT).show();
+               if(getDelegate() != null) {
+                   getDelegate().onVisitClicked(ItemAdapter.this, rssItem);
+               }
            }
         }
 
