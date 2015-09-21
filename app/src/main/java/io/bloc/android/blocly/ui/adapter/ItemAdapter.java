@@ -46,6 +46,25 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
     private WeakReference<Delegate> delegate;
     private WeakReference<DataSource> dataSource;
 
+    private int collapsedHeight;
+    private int expandedHeight;
+
+    public int getCollapsedHeight(){
+        return collapsedHeight;
+    }
+
+    private void setCollapsedHeight(int height) {
+        collapsedHeight = height;
+    }
+
+    public int getExpandedHeight() {
+        return expandedHeight;
+    }
+
+    private void setExpandedHeight(int height) {
+        expandedHeight = height;
+    }
+
     @Override
     public ItemAdapterViewHolder onCreateViewHolder(ViewGroup viewGroup, int index){
         View inflate = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.rss_item, viewGroup, false);
@@ -224,6 +243,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
             int finalHeight = content.getMeasuredHeight();
 
             if(expand){
+                setCollapsedHeight(itemView.getHeight());
                 startingHeight = finalHeight;
                 expandedContentWrapper.setAlpha(0f);
                 expandedContentWrapper.setVisibility(View.VISIBLE);
@@ -259,6 +279,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
                     if (animatedFraction == 1f) {
                         if(expand) {
                             content.setVisibility(View.GONE);
+                            setExpandedHeight(itemView.getHeight());
                         } else {
                             expandedContentWrapper.setVisibility(View.GONE);
                         }

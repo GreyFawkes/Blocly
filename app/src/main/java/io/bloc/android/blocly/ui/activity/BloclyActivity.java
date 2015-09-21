@@ -40,6 +40,7 @@ public class BloclyActivity extends ActionBarActivity
         ItemAdapter.Delegate,
         ItemAdapter.DataSource {
 
+    private RecyclerView mRecyclerView;
     private ItemAdapter mItemAdapter;
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
@@ -76,11 +77,11 @@ public class BloclyActivity extends ActionBarActivity
         mItemAdapter.setDataSource(this);
         mItemAdapter.setDelegate(this);
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv_activity_blocly);
+        mRecyclerView = (RecyclerView) findViewById(R.id.rv_activity_blocly);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(mItemAdapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mRecyclerView.setAdapter(mItemAdapter);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.dl_activity_blocly);
@@ -226,6 +227,11 @@ public class BloclyActivity extends ActionBarActivity
             positionToContract = BloclyApplication.getSharedDataSource().getItems().
                     indexOf(itemAdapter.getExpandedItem());
 
+            View viewToContract = mRecyclerView.getLayoutManager().findViewByPosition(positionToContract);
+            if(viewToContract == null) {
+                positionToContract = -1;
+            }
+
         }
         if(itemAdapter.getExpandedItem() != rssItem) {
             positionToExpand = BloclyApplication.getSharedDataSource().getItems().
@@ -239,6 +245,17 @@ public class BloclyActivity extends ActionBarActivity
         }
         if(positionToExpand > -1) {
             itemAdapter.notifyItemChanged(positionToExpand);
+        } else {
+            return;
         }
+
+        int lessToScroll = 0;
+        if(positionToContract > -1 && positionToContract < positionToExpand) {
+            lessToScroll = itemAdapter.getExpandedHeight() - itemAdapter.getCollapsedHeight();
+        }
+
+        View viewToExpand = mRecyclerView.getLayoutManager().findViewByPosition(positionToExpand);
+
+        mRecyclerView.smoothScrollBy(0, viewToExpand.getTop() - lessToScroll);
     }
 }
