@@ -2,6 +2,8 @@ package io.bloc.android.blocly.ui.activity;
 
 import android.animation.ValueAnimator;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -13,6 +15,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,6 +29,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import io.bloc.android.blocly.BloclyApplication;
 import io.bloc.android.blocly.R;
@@ -44,6 +48,8 @@ public class BloclyActivity extends ActionBarActivity
         ItemAdapter.Delegate,
         ItemAdapter.DataSource {
 
+    private static final String TAG = "BloclyActivity";
+
     private RecyclerView mRecyclerView;
     private ItemAdapter mItemAdapter;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -57,6 +63,34 @@ public class BloclyActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_blocly);
 
+///-----
+
+        Intent email = new Intent(Intent.ACTION_SEND);
+        email.setType("text/html");
+        List<ResolveInfo> emailInfo = getPackageManager().queryIntentActivities(email, PackageManager.GET_ACTIVITIES);
+        Log.i(TAG, String.valueOf(emailInfo.size()) );
+
+        Intent phone = new Intent(Intent.ACTION_DIAL);
+        List<ResolveInfo> phoneInfo = getPackageManager().queryIntentActivities(phone, PackageManager.GET_ACTIVITIES);
+        Log.i(TAG, String.valueOf(phoneInfo.size()) );
+
+        Intent web = new Intent(Intent.ACTION_VIEW);
+        List<ResolveInfo> webInfo = getPackageManager().queryIntentActivities(web, PackageManager.GET_ACTIVITIES);
+        Log.i(TAG, String.valueOf(webInfo.size()) );
+
+        for(ResolveInfo info : emailInfo) {
+            Log.i(TAG, "opens emailing: " + info.activityInfo.name);
+        }
+
+        for(ResolveInfo info : phoneInfo) {
+            Log.i(TAG, "opens phone-dialing: " + info.activityInfo.name);
+        }
+
+        for(ResolveInfo info : webInfo) {
+            Log.i(TAG, "opens website: " + info.activityInfo.name);
+        }
+
+///-----
         Toolbar toolbar = (Toolbar) findViewById(R.id.tb_activity_blocly);
         setSupportActionBar(toolbar);
 
