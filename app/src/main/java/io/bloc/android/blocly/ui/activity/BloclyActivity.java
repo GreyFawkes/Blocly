@@ -1,5 +1,6 @@
 package io.bloc.android.blocly.ui.activity;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -177,7 +178,14 @@ public class BloclyActivity extends ActionBarActivity
         if(mDrawerToggle.onOptionsItemSelected(item)) {
             return  true;
         }
-        Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
+        if(item.getItemId() == R.id.action_share) {
+            Intent shareIntent = new Intent();
+            shareIntent.setAction(Intent.ACTION_SEND);
+            shareIntent.putExtra(Intent.EXTRA_TEXT, mItemAdapter.getExpandedItem().getTitle());
+            shareIntent.setType("text/plain");
+            startActivity(shareIntent);
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -186,6 +194,8 @@ public class BloclyActivity extends ActionBarActivity
 
         getMenuInflater().inflate(R.menu.blocly, menu);
         mMenu = menu;
+        mMenu.findItem(R.id.action_share).setEnabled(false); // disable the share button
+        mMenu.findItem(R.id.action_share).setVisible(false);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -223,6 +233,8 @@ public class BloclyActivity extends ActionBarActivity
         int positionToExpand = -1;
         int positionToContract = -1;
 
+        MenuItem shareItem = mMenu.findItem(R.id.action_share);
+
         if(itemAdapter.getExpandedItem() != null) {
             positionToContract = BloclyApplication.getSharedDataSource().getItems().
                     indexOf(itemAdapter.getExpandedItem());
@@ -242,10 +254,15 @@ public class BloclyActivity extends ActionBarActivity
         }
         if(positionToContract > -1) {
             itemAdapter.notifyItemChanged(positionToContract);
+
         }
         if(positionToExpand > -1) {
             itemAdapter.notifyItemChanged(positionToExpand);
+            shareItem.setEnabled(true);
+            shareItem.setVisible(true);
         } else {
+            shareItem.setEnabled(false);
+            shareItem.setVisible(false);
             return;
         }
 
