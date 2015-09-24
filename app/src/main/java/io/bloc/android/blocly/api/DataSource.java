@@ -17,18 +17,23 @@ public class DataSource {
     private List<RssFeed> mFeeds;
     private List<RssItem> mItems;
 
+    private List<GetFeedsNetworkRequest.FeedResponse> mList;
+
     public DataSource() {
         mFeeds = new ArrayList<RssFeed>();
         mItems = new ArrayList<RssItem>();
-        createFakeData();
+        //createFakeData();
 
-        new Thread(new Runnable() {
+       Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                new GetFeedsNetworkRequest("http://feeds.feedburner.com/androidcentral?format=xml")
+                mList = new GetFeedsNetworkRequest("http://feeds.feedburner.com/androidcentral?format=xml")
                         .performRequest();
+                createData();
             }
-        }).start();
+        });
+        thread.start();
+
     }
 
 
@@ -39,6 +44,30 @@ public class DataSource {
 
     public List<RssItem> getItems() {
         return mItems;
+    }
+
+       void createData() {
+        for(int i = 0; i < mList.size(); i++) {
+
+            GetFeedsNetworkRequest.FeedResponse feedResponse = mList.get(0);
+            getFeeds().add(new RssFeed(feedResponse.channelTitle,
+                    feedResponse.channelDescription,
+                    feedResponse.channelURL,
+                    feedResponse.channelFeedURL));
+
+            List<GetFeedsNetworkRequest.ItemResponse> itemResponsesList = feedResponse.channelItems;
+
+            for(int j = 0; j < itemResponsesList.size(); j++) {
+                getItems().add(new RssItem( itemResponsesList.get(j).itemGUID,
+                        itemResponsesList.get(j).itemTitle,
+                        itemResponsesList.get(j).itemDescription,
+                        itemResponsesList.get(j).itemURL,
+                        itemResponsesList.get(j).itemEnclosureURL,
+                        i,
+                        Long.getLong(itemResponsesList.get(j).itemPubDate, System.currentTimeMillis()),
+                        false, false));
+            }
+        }
     }
 
     void createFakeData() {
