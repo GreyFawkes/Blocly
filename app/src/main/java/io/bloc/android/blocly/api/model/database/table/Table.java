@@ -7,6 +7,10 @@ import android.database.sqlite.SQLiteDatabase;
  */
 public abstract class Table {
 
+    public interface Builder {
+        long insert(SQLiteDatabase writableDB);
+    }
+
     protected static final String COLUMN_ID = "id";
 
     public abstract String getName();
