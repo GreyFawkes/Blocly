@@ -3,6 +3,7 @@ package io.bloc.android.blocly.api;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Handler;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -10,10 +11,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import io.bloc.android.blocly.BloclyApplication;
 import io.bloc.android.blocly.BuildConfig;
-import io.bloc.android.blocly.R;
 import io.bloc.android.blocly.api.model.RssFeed;
 import io.bloc.android.blocly.api.model.RssItem;
 import io.bloc.android.blocly.api.model.database.DatabaseOpenHelper;
@@ -27,44 +29,62 @@ import io.bloc.android.blocly.api.network.GetFeedsNetworkRequest;
 public class DataSource {
 
 
-    public static final String  ACTION_DOWNLOAD_COMPLETED = DataSource.class.getCanonicalName().concat(".ACTION_DOWNLOAD_COMPLETED");
+    public interface Callback<Result> {
+        void onSuccess(Result result);
+        void onError(Result result);
+    }
 
     private DatabaseOpenHelper mDatabaseOpenHelper;
     private RssFeedTable mRssFeedTable;
     private RssItemTable mRssItemTable;
-    private List<RssFeed> mFeeds;
-    private List<RssItem> mItems;
+    private ExecutorService mExecutorService;
+
 
     public DataSource() {
         mRssFeedTable = new RssFeedTable();
         mRssItemTable = new RssItemTable();
 
+        mExecutorService = Executors.newSingleThreadExecutor();
         mDatabaseOpenHelper = new DatabaseOpenHelper(BloclyApplication.getSharedInstance(),
                 mRssFeedTable, mRssItemTable);
 
-        mFeeds = new ArrayList<RssFeed>();
-        mItems = new ArrayList<RssItem>();
+        if (BuildConfig.DEBUG && true) {
+            BloclyApplication.getSharedInstance().deleteDatabase("blocly_db");
+        }
+    }
 
-        new Thread(new Runnable() {
+    public void fetchNewsFeed(final String feedUrl, final Callback<RssFeed> callback) {
+
+        final Handler callbackThreadHandler = new Handler();
+        submitTask(new Runnable() {
             @Override
             public void run() {
 
-                if(BuildConfig.DEBUG && true) {
-                    BloclyApplication.getSharedInstance().deleteDatabase("blocly_db");
+                Cursor existingFeedCursor = RssFeedTable.fecthFeedWithURL(mDatabaseOpenHelper.getReadableDatabase(), feedUrl);
+                if(existingFeedCursor.moveToFirst()) {
+                    final RssFeed fetchedFeed = feedFromCursor(existingFeedCursor);
+                    existingFeedCursor.close();
+
+                    callbackThreadHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            callback.onSuccess(fetchedFeed);
+                        }
+                    });
+                    return;
                 }
-                SQLiteDatabase writableDatabase = mDatabaseOpenHelper.getWritableDatabase();
 
-                List<GetFeedsNetworkRequest.FeedResponse> feedResponses =
-                        new GetFeedsNetworkRequest("http://feeds.feedburner.com/androidcentral?format=xml").performRequest();
+                GetFeedsNetworkRequest getFeedsNetworkRequest = new GetFeedsNetworkRequest(feedUrl);
+                List<GetFeedsNetworkRequest.FeedResponse> feedResponses = getFeedsNetworkRequest.performRequest();
 
-                GetFeedsNetworkRequest.FeedResponse androidCentral = feedResponses.get(0);
 
-                long androidCentralFeedId = new RssFeedTable.Builder()
-                        .setFeedURL(androidCentral.channelFeedURL)
-                        .setSiteURL(androidCentral.channelURL)
-                        .setTitle(androidCentral.channelTitle)
-                        .setDescription(androidCentral.channelDescription)
-                        .insert(writableDatabase);
+                ///I stopped here
+                if(getFeedsNetworkRequest.getErrorCode() != 0) {
+                    final String errorMessage
+                }
+                //I stopped here
+
+
 
                 List<RssItem> newRssItems = new ArrayList<RssItem>();
 
@@ -114,41 +134,26 @@ public class DataSource {
     }
 
 
-
-    public List<RssFeed> getFeeds() {
-        return mFeeds;
-    }
-
-    public List<RssItem> getItems() {
-        return mItems;
-    }
-
     static RssFeed feedFromCursor(Cursor cursor) {
-        return new RssFeed(RssFeedTable.getTitle(cursor), RssFeedTable.getDescription(cursor),
+        return new RssFeed(RssFeedTable.getRowId(cursor), RssFeedTable.getTitle(cursor), RssFeedTable.getDescription(cursor),
                 RssFeedTable.getSiteURL(cursor), RssFeedTable.getFeedURL(cursor));
     }
 
     static RssItem itemFromCursor(Cursor cursor) {
-        return new RssItem(RssItemTable.getGUID(cursor), RssItemTable.getTitle(cursor),
+        return new RssItem(RssFeedTable.getRowId(cursor),RssItemTable.getGUID(cursor), RssItemTable.getTitle(cursor),
                 RssItemTable.getDescription(cursor), RssItemTable.getLink(cursor),
                 RssItemTable.getEnclosure(cursor), RssItemTable.getRssFeedId(cursor),
                 RssItemTable.getPubDate(cursor), RssItemTable.getFavorite(cursor),
                 RssItemTable.getArchived(cursor));
     }
 
-    void createFakeData() {
-        getFeeds().add(new RssFeed("My favorite feed",
-                "This feed is just increadible, I can't even begin to tell you...",
-                "http://favoritefeed.net", "http://feeds.feedburner.com/favorite_feed?format=xml"));
+    void submitTask(Runnable task) {
 
-        for (int i = 0; i < 10; i++) {
-            getItems().add(new RssItem(String.valueOf(i),
-                    BloclyApplication.getSharedInstance().getString(R.string.placeholder_caption) + " " + i,
-                    BloclyApplication.getSharedInstance().getString(R.string.placeholder_content),
-                    "http://favoritefeed.net?story_id=an-incredible-news-story",
-                    "http://rs1img.memecdn.com/silly-dog_o_511213.jpg",
-                    0, System.currentTimeMillis(), false, false));
+        if(mExecutorService.isShutdown() || mExecutorService.isTerminated()) {
+            mExecutorService = Executors.newSingleThreadExecutor();
         }
+        mExecutorService.submit(task);
+
     }
 
 

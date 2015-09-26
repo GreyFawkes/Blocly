@@ -29,8 +29,8 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import io.bloc.android.blocly.BloclyApplication;
 import io.bloc.android.blocly.R;
 import io.bloc.android.blocly.api.DataSource;
 import io.bloc.android.blocly.api.model.RssFeed;
@@ -46,7 +46,8 @@ public class BloclyActivity extends ActionBarActivity
         implements
         NavigationDrawerAdapter.NavigationDrawerAdapterDelegate,
         ItemAdapter.Delegate,
-        ItemAdapter.DataSource {
+        ItemAdapter.DataSource,
+        NavigationDrawerAdapter.NavigationDrawerAdapterDataSource{
 
     private RecyclerView mRecyclerView;
     private ItemAdapter mItemAdapter;
@@ -55,6 +56,9 @@ public class BloclyActivity extends ActionBarActivity
     private NavigationDrawerAdapter mNavigationDrawerAdapter;
     private Menu mMenu;
     private View mOverflowButton;
+
+    private List<RssFeed> allFeeds = new ArrayList<RssFeed>();
+    private List<RssItem> currentItems = new ArrayList<RssItem>();
 
 
     private BroadcastReceiver dataSourceBroadcastReceiver = new BroadcastReceiver() {
@@ -178,6 +182,7 @@ public class BloclyActivity extends ActionBarActivity
 
         mNavigationDrawerAdapter = new NavigationDrawerAdapter();
         mNavigationDrawerAdapter.setDelegate(this);
+        mNavigationDrawerAdapter.setDataSource(this);
         RecyclerView navigationRecyclerView = (RecyclerView) findViewById(R.id.rv_nav_activity_blocly);
         navigationRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         navigationRecyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -258,18 +263,29 @@ public class BloclyActivity extends ActionBarActivity
     }
 
     @Override
+    public List<RssFeed> getFeeds(NavigationDrawerAdapter adapter) {
+        return allFeeds;
+    }
+
+    @Override
     public RssItem getRssItem(ItemAdapter itemAdapter, int position) {
-        return BloclyApplication.getSharedDataSource().getItems().get(position);
+        return currentItems.get(position);
     }
 
     @Override
     public RssFeed getRssFeed(ItemAdapter itemAdapter, int position) {
-        return BloclyApplication.getSharedDataSource().getFeeds().get(0);
+        RssItem rssItem = currentItems.get(position);
+        for (RssFeed feed : allFeeds) {
+            if(rssItem.getRssFeedId() == feed.getRowId()) {
+                return feed;
+            }
+        }
+        return null;
     }
 
     @Override
     public int getItemCount(ItemAdapter itemAdapter) {
-        return BloclyApplication.getSharedDataSource().getItems().size();
+        return currentItems.size();
     }
 
     @Override
@@ -278,8 +294,7 @@ public class BloclyActivity extends ActionBarActivity
         int positionToContract = -1;
 
         if(itemAdapter.getExpandedItem() != null) {
-            positionToContract = BloclyApplication.getSharedDataSource().getItems().
-                    indexOf(itemAdapter.getExpandedItem());
+            positionToContract = currentItems.indexOf(itemAdapter.getExpandedItem());
 
             View viewToContract = mRecyclerView.getLayoutManager().findViewByPosition(positionToContract);
             if(viewToContract == null) {
@@ -288,8 +303,7 @@ public class BloclyActivity extends ActionBarActivity
 
         }
         if(itemAdapter.getExpandedItem() != rssItem) {
-            positionToExpand = BloclyApplication.getSharedDataSource().getItems().
-                    indexOf(rssItem);
+            positionToExpand = currentItems.indexOf(rssItem);
             itemAdapter.setExpandedItem(rssItem);
         } else {
             itemAdapter.setExpandedItem(null);
@@ -340,5 +354,4 @@ public class BloclyActivity extends ActionBarActivity
         });
         valueAnimator.start();
     }
-
 }
