@@ -75,8 +75,8 @@ public class RssItemTable extends Table {
         return getString(cursor, COLUMN_GUID);
     }
 
-    public static String getPubDate(Cursor cursor) {
-        return getString(cursor, COLUMN_PUB_DATE);
+    public static long getPubDate(Cursor cursor) {
+        return getLong(cursor, COLUMN_PUB_DATE);
     }
 
     public static long getRssFeedId(Cursor cursor) {
@@ -94,7 +94,6 @@ public class RssItemTable extends Table {
     public static boolean getArchived(Cursor cursor) {
         return getBoolean(cursor, COLUMN_ARCHIVED);
     }
-
 
 
     private static final String NAME = "rss_items";

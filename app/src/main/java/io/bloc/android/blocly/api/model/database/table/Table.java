@@ -22,6 +22,11 @@ public abstract class Table {
         //nothing
     }
 
+    public Cursor fetchRow(SQLiteDatabase readonlyDatabase, long rowId) {
+        return readonlyDatabase.query(true, getName(), null, COLUMN_ID + " = ?",
+                new String[] {String.valueOf(rowId)}, null, null, null, null);
+    }
+
     protected static String getString(Cursor cursor, String column) {
         int columnIndex = cursor.getColumnIndex(column);
         if (columnIndex == -1) {
