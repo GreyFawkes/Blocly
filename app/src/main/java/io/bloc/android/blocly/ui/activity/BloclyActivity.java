@@ -1,15 +1,13 @@
 package io.bloc.android.blocly.ui.activity;
 
 import android.animation.ValueAnimator;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -31,6 +29,7 @@ import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.bloc.android.blocly.BloclyApplication;
 import io.bloc.android.blocly.R;
 import io.bloc.android.blocly.api.DataSource;
 import io.bloc.android.blocly.api.model.RssFeed;
@@ -49,6 +48,7 @@ public class BloclyActivity extends ActionBarActivity
         ItemAdapter.DataSource,
         NavigationDrawerAdapter.NavigationDrawerAdapterDataSource{
 
+    private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
     private ItemAdapter mItemAdapter;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -60,14 +60,6 @@ public class BloclyActivity extends ActionBarActivity
     private List<RssFeed> allFeeds = new ArrayList<RssFeed>();
     private List<RssItem> currentItems = new ArrayList<RssItem>();
 
-
-    private BroadcastReceiver dataSourceBroadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            mItemAdapter.notifyDataSetChanged();
-            mNavigationDrawerAdapter.notifyDataSetChanged();
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +89,49 @@ public class BloclyActivity extends ActionBarActivity
         mItemAdapter = new ItemAdapter();
         mItemAdapter.setDataSource(this);
         mItemAdapter.setDelegate(this);
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.srl_activity_blocly);
+        mSwipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.primary));
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                BloclyApplication.getSharedDataSource().fetchNewsFeed("http://feeds.feedburner.com/androidcentral?format=xml",
+                        new DataSource.Callback<RssFeed>() {
+                            @Override
+                            public void onSuccess(RssFeed feed) {
+                                if(isFinishing() || isDestroyed())
+                                    return;
+
+                                allFeeds.add(feed);
+                                mNavigationDrawerAdapter.notifyDataSetChanged();
+                                BloclyApplication.getSharedDataSource().fetchItemsForFeed(feed,
+                                        new DataSource.Callback<List<RssItem>>() {
+                                            @Override
+                                            public void onSuccess(List<RssItem> rssItems) {
+                                                if(isFinishing() || isDestroyed()) return;
+
+                                                currentItems.addAll(rssItems);
+                                                mItemAdapter.notifyItemRangeInserted(0, currentItems.size());
+                                                mSwipeRefreshLayout.setRefreshing(false);
+                                            }
+
+                                            @Override
+                                            public void onError(String errorMessage) {
+                                                mSwipeRefreshLayout.setRefreshing(false);
+                                            }
+                                        });
+
+                            }
+
+
+                            @Override
+                            public void onError(String errorMessage) {
+                                Toast.makeText(BloclyActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                                mSwipeRefreshLayout.setRefreshing(false);
+                            }
+                        });
+            }
+        });
 
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_activity_blocly);
 
@@ -188,8 +223,6 @@ public class BloclyActivity extends ActionBarActivity
         navigationRecyclerView.setItemAnimator(new DefaultItemAnimator());
         navigationRecyclerView.setAdapter(mNavigationDrawerAdapter);
 
-        registerReceiver(dataSourceBroadcastReceiver, new IntentFilter(DataSource.ACTION_DOWNLOAD_COMPLETED));
-
     }
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -255,12 +288,6 @@ public class BloclyActivity extends ActionBarActivity
 
     }
 
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unregisterReceiver(dataSourceBroadcastReceiver);
-    }
 
     @Override
     public List<RssFeed> getFeeds(NavigationDrawerAdapter adapter) {
