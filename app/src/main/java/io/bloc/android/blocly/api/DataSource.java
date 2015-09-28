@@ -122,7 +122,7 @@ public class DataSource {
                             .setMIMEType(itemResponse.itemEnclosureMIMEType)
                             .setGUID(itemResponse.itemGUID)
                             .setLink(itemResponse.itemURL)
-                            .setPubDate(itemResponse.itemPubDate)
+                            .setPubDate(itemPubDate)
                             .setRssFeed(newFeedId)
                             .insert(mDatabaseOpenHelper.getWritableDatabase());
 
