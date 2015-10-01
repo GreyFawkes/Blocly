@@ -1,5 +1,6 @@
 package io.bloc.android.blocly.api;
 
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.text.DateFormat;
@@ -84,7 +85,18 @@ public class DataSource {
                             .setRssFeed(androidCentralFeedId)
                             .insert(writableDatabase);
 
+
+
+
+
+
                 }
+
+
+                Cursor result = BloclyApplication.getSharedDataSource().getReadableDatabase().query(
+                        true, "rss_items", null, null, null, null, null, "pub_date DESC", "10"
+                );
+
             }
         }).start();
     }

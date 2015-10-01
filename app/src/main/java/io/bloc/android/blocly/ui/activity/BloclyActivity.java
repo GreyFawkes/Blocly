@@ -177,6 +177,8 @@ public class BloclyActivity extends ActionBarActivity
 
         //query statement that returns a cursor to nothing
 
+
+
         Cursor result = BloclyApplication.getSharedDataSource().getReadableDatabase().query(
                 true, "rss_items", null, null, null, null, null, "pub_date DESC", "10"
         );
