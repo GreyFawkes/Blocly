@@ -14,6 +14,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -179,6 +180,14 @@ public class BloclyActivity extends ActionBarActivity
         Cursor result = BloclyApplication.getSharedDataSource().getReadableDatabase().query(
                 true, "rss_items", null, null, null, null, null, "pub_date DESC", "10"
         );
+
+        result.moveToFirst();
+
+        String testResponse = String.valueOf(  result.getCount()  );
+
+        result.close();
+
+        Log.i("assignment-54", testResponse);
 
     }
 
