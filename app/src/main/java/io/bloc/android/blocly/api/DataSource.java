@@ -1,5 +1,6 @@
 package io.bloc.android.blocly.api;
 
+import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
@@ -42,13 +43,51 @@ public class DataSource {
             @Override
             public void run() {
 
-                if(BuildConfig.DEBUG && false) {
+                if(BuildConfig.DEBUG && true) {
                     BloclyApplication.getSharedInstance().deleteDatabase("blocly_db");
+
+                    //recreate the database after delete
+                    mDatabaseOpenHelper = new DatabaseOpenHelper(BloclyApplication.getSharedInstance(),
+                            mRssFeedTable, mRssItemTable);
                 }
                 SQLiteDatabase writableDatabase = mDatabaseOpenHelper.getWritableDatabase();
 
-                new GetFeedsNetworkRequest("http://feeds.feedburner.com/androidcentral?format=xml")
+                List<GetFeedsNetworkRequest.FeedResponse> feedResponses = new GetFeedsNetworkRequest("http://feeds.feedburner.com/androidcentral?format=xml")
                         .performRequest();
+
+                GetFeedsNetworkRequest.FeedResponse response = feedResponses.get(0); // get first feed
+
+                ContentValues feedValues = new ContentValues();
+
+                feedValues.put("link", response.channelURL);
+                feedValues.put("title", response.channelTitle);
+                feedValues.put("description", response.channelDescription);
+                feedValues.put("feed_url", response.channelFeedURL);
+
+                long feedId = writableDatabase.insert("rss_feeds", null, feedValues);
+
+                for(GetFeedsNetworkRequest.ItemResponse itemResponses : response.channelItems) {
+
+                    ContentValues itemValues = new ContentValues();
+
+                    itemValues.put("link", itemResponses.itemURL);
+                    itemValues.put("title", itemResponses.itemTitle);
+                    itemValues.put("description", itemResponses.itemDescription);
+                    itemValues.put("guid", itemResponses.itemGUID);
+
+                    //stuff for date
+
+                    long itemPubDate = System.currentTimeMillis();
+
+                    itemValues.put("pub_date", itemPubDate);
+                    itemValues.put("enclosure", itemResponses.itemEnclosureURL);
+                    itemValues.put("mime_type", itemResponses.itemEnclosureMIMEType);
+                    itemValues.put("rss_feed", feedId);
+
+                    writableDatabase.insert("rss_items", null, itemValues);
+
+                }
+
             }
         }).start();
     }
