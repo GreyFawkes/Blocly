@@ -3,6 +3,7 @@ package io.bloc.android.blocly.ui.activity;
 import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -51,6 +52,8 @@ public class BloclyActivity extends ActionBarActivity
     private NavigationDrawerAdapter mNavigationDrawerAdapter;
     private Menu mMenu;
     private View mOverflowButton;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -169,7 +172,17 @@ public class BloclyActivity extends ActionBarActivity
         navigationRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         navigationRecyclerView.setItemAnimator(new DefaultItemAnimator());
         navigationRecyclerView.setAdapter(mNavigationDrawerAdapter);
+
+
+        //query statement that returns a cursor to nothing
+
+        Cursor result = BloclyApplication.getSharedDataSource().getReadableDatabase().query(
+                true, "rss_items", null, null, null, null, null, "pub_date DESC", "10"
+        );
+
     }
+
+
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);

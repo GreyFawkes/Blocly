@@ -89,8 +89,6 @@ public class DataSource {
         }).start();
     }
 
-
-
     public List<RssFeed> getFeeds() {
         return mFeeds;
     }
@@ -112,6 +110,10 @@ public class DataSource {
                     "http://rs1img.memecdn.com/silly-dog_o_511213.jpg",
                     0, System.currentTimeMillis(), false, false));
         }
+    }
+
+    public SQLiteDatabase getReadableDatabase() {
+        return mDatabaseOpenHelper.getReadableDatabase();
     }
 
 
