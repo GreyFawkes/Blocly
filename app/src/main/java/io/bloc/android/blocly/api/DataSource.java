@@ -52,7 +52,7 @@ public class DataSource {
         }
     }
 
-    public void fetchNewsFeed(final String feedUrl, final Callback<RssFeed> callback) {
+    public void fetchNewFeed(final String feedUrl, final Callback<RssFeed> callback) {
 
         final Handler callbackThreadHandler = new Handler();
         submitTask(new Runnable() {
