@@ -95,11 +95,11 @@ public class BloclyActivity extends ActionBarActivity
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                BloclyApplication.getSharedDataSource().fetchNewsFeed("http://feeds.feedburner.com/androidcentral?format=xml",
+                BloclyApplication.getSharedDataSource().fetchNewFeed("http://feeds.feedburner.com/androidcentral?format=xml",
                         new DataSource.Callback<RssFeed>() {
                             @Override
                             public void onSuccess(RssFeed feed) {
-                                if(isFinishing() || isDestroyed())
+                                if (isFinishing() || isDestroyed())
                                     return;
 
                                 allFeeds.add(feed);
@@ -108,7 +108,7 @@ public class BloclyActivity extends ActionBarActivity
                                         new DataSource.Callback<List<RssItem>>() {
                                             @Override
                                             public void onSuccess(List<RssItem> rssItems) {
-                                                if(isFinishing() || isDestroyed()) return;
+                                                if (isFinishing() || isDestroyed()) return;
 
                                                 currentItems.addAll(rssItems);
                                                 mItemAdapter.notifyItemRangeInserted(0, currentItems.size());
