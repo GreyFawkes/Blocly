@@ -129,4 +129,39 @@ public class RssItemTable extends Table {
                 + COLUMN_FAVORITE + " INTEGER DEFAULT 0,"
                 + COLUMN_ARCHIVED + " INTEGER DEFAULT 0)";
     }
+
+    public Cursor getCursorArchivedItems(SQLiteDatabase database){
+        return database.query(true, NAME, null, COLUMN_ARCHIVED + " = 1",
+                null, null, null, null, null);
+    }
+
+    public Cursor getCursorArchivedItemsFromFeed(SQLiteDatabase database, String feedName) {
+        return database.query(true, NAME, null, COLUMN_ARCHIVED + " = 1 AND " + COLUMN_RSS_FEED + " = " + feedName,
+                null, null, null, null, null);
+    }
+
+    public Cursor getCursorFavoritedItems(SQLiteDatabase database) {
+        return database.query(true, NAME, null, COLUMN_FAVORITE + " = 1",
+                null, null, null, null, null);
+    }
+
+    public Cursor getCursorFavoritedItemsFromFeed(SQLiteDatabase database, String feedName) {
+        return database.query(true, NAME, null, COLUMN_FAVORITE + " = 1 AND " + COLUMN_RSS_FEED + " = " + feedName,
+                null, null, null, null, null);
+    }
+
+    public Cursor getCursorItemsFromFeed(SQLiteDatabase database, String feedName) {
+        return database.query(true, NAME, null, COLUMN_RSS_FEED + " = " + feedName,
+                null, null, null, null, null);
+    }
+
+    public Cursor getCursorItemsFromFeed(SQLiteDatabase database, String feedName, int limit) {
+        return database.query(true, NAME, null, COLUMN_RSS_FEED + " = " + feedName,
+                null, null, null, null, "LIMIT " + String.valueOf(limit));
+    }
+
+    public Cursor getCursorItemsFromFeed(SQLiteDatabase database, String feedName, int limit, int offset) {
+        return database.query(true, NAME, null, COLUMN_RSS_FEED + " = " + feedName,
+                null, null, null, null, "LIMIT " + String.valueOf(limit) + " OFFSET " + String.valueOf(offset) );
+    }
 }
