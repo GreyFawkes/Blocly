@@ -76,7 +76,6 @@ public class DataSource {
                 GetFeedsNetworkRequest getFeedsNetworkRequest = new GetFeedsNetworkRequest(feedUrl);
                 List<GetFeedsNetworkRequest.FeedResponse> feedResponses = getFeedsNetworkRequest.performRequest();
 
-
                 if (getFeedsNetworkRequest.getErrorCode() != 0) {
                     final String errorMessage;
                     if (getFeedsNetworkRequest.getErrorCode() == NetworkRequest.ERROR_IO) {
