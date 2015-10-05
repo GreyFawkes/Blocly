@@ -31,6 +31,13 @@
         <item name="robotoFont">Medium</item>
     </style>
 
+    <style name="RssItemTitle" parent="Base.TextAppearance.AppCompat.Body2">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:singleLine">true</item>
+        <item name="robotoFont">Medium</item>
+    </style>
+
     <style name="Headline">
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:textSize">24sp</item>
