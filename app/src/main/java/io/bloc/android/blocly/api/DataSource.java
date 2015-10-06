@@ -72,6 +72,21 @@ public class DataSource {
         }
     }
 
+    public void fetchRSSItemWithId(final long rowId, final Callback<RssItem> callback) {
+        final Handler callbackHandlerThread = new Handler();
+        submitTask(new Runnable() {
+            @Override
+            public void run() {
+                Cursor cursor = mRssItemTable.fetchRow(mDatabaseOpenHelper.getReadableDatabase(), rowId);
+                if(cursor.moveToFirst()) {
+
+                }
+
+
+            }
+        });
+    }
+
 
     public void fetchFeedWithId(final long rowId, final Callback<RssFeed> callback) {
         final Handler callbackThreadHandler = new Handler();
