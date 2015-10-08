@@ -30,12 +30,12 @@ public class RssItemDetailFragment extends Fragment
     private static final String BUNDLE_EXTRA_RSS_ITEM =
             RssItemDetailFragment.class.getCanonicalName().concat(".EXTRA_RSS_ITEM");
 
-    public static RssItemListFragment detailFragmentForRssItem(RssItem rssItem) {
+    public static RssItemDetailFragment detailFragmentForRssItem(RssItem rssItem) {
         Bundle args = new Bundle();
         args.putLong(BUNDLE_EXTRA_RSS_ITEM, rssItem.getRowId());
-        RssItemListFragment rssItemListFragment = new RssItemListFragment();
-        rssItemListFragment.setArguments((args));
-        return rssItemListFragment;
+        RssItemDetailFragment rssItemDetailFragment = new RssItemDetailFragment();
+        rssItemDetailFragment.setArguments((args));
+        return rssItemDetailFragment;
     }
 
     ImageView headerImage;

@@ -79,7 +79,21 @@ public class DataSource {
             public void run() {
                 Cursor cursor = mRssItemTable.fetchRow(mDatabaseOpenHelper.getReadableDatabase(), rowId);
                 if(cursor.moveToFirst()) {
-
+                    final RssItem rssItem = itemFromCursor(cursor);
+                    cursor.close();
+                    callbackHandlerThread.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            callback.onSuccess(rssItem);
+                        }
+                    });
+                } else {
+                    callbackHandlerThread.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            callback.onError("RSS item not found for row Id (" + rowId + ")");
+                        }
+                    });
                 }
 
 

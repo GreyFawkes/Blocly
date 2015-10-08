@@ -1,7 +1,6 @@
 package io.bloc.android.blocly.ui.adapter;
 
 import android.animation.ValueAnimator;
-import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Outline;
 import android.os.Build;
@@ -181,7 +180,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
 
                 if(Build.VERSION.SDK_INT >= 21) {
                     callout.setOutlineProvider(new ViewOutlineProvider() {
-                        @SuppressLint("NewApi")
                         @Override
                         public void getOutline(View view, Outline outline) {
                             outline.setOval(0, 0, view.getWidth(), view.getHeight());
