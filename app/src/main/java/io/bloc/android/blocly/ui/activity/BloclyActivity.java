@@ -111,7 +111,7 @@ public class BloclyActivity extends ActionBarActivity
                                                 if (isFinishing() || isDestroyed()) return;
 
                                                 currentItems.addAll(rssItems);
-                                                mItemAdapter.notifyItemRangeInserted(0, currentItems.size());
+                                                mItemAdapter.notifyDataSetChanged();
                                                 mSwipeRefreshLayout.setRefreshing(false);
                                             }
 

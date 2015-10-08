@@ -64,6 +64,8 @@ public class DataSource {
                     final RssFeed fetchedFeed = feedFromCursor(existingFeedCursor);
                     existingFeedCursor.close();
 
+
+
                     callbackThreadHandler.post(new Runnable() {
                         @Override
                         public void run() {
