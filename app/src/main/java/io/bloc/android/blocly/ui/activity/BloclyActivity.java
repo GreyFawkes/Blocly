@@ -95,7 +95,7 @@ public class BloclyActivity extends ActionBarActivity
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                BloclyApplication.getSharedDataSource().fetchNewFeed("http://feeds.feedburner.com/androidcentral?format=xml",
+                BloclyApplication.getSharedDataSource().updateFeed("http://feeds.feedburner.com/androidcentral?format=xml",
                         new DataSource.Callback<RssFeed>() {
                             @Override
                             public void onSuccess(RssFeed feed) {

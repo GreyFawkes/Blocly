@@ -52,6 +52,176 @@ public class DataSource {
         }
     }
 
+
+    public void updateFeed(final String feedUrl, final Callback<RssFeed> callback) {
+
+        final Handler callbackThreadHandler = new Handler();
+        submitTask(new Runnable() {
+            @Override
+            public void run() {
+
+                Cursor existingFeedCursor = RssFeedTable.fetchFeedWithURL(mDatabaseOpenHelper.getReadableDatabase(), feedUrl);
+                //check if database is empty
+                //if DB is not empty
+                if (existingFeedCursor.moveToFirst()) {
+                    //fetch feed from application DB
+                    final RssFeed fetchedFeed = feedFromCursor(existingFeedCursor);
+                    long feedId = RssFeedTable.getRowId(existingFeedCursor);
+                    existingFeedCursor.close();
+
+
+
+                    //grab the feedresponse from the HTML
+                    GetFeedsNetworkRequest getFeedsNetworkRequest = new GetFeedsNetworkRequest(feedUrl);
+                    List<GetFeedsNetworkRequest.FeedResponse> feedResponses = getFeedsNetworkRequest.performRequest();
+
+                    //check for errors
+                    if (getFeedsNetworkRequest.getErrorCode() != 0) {
+                        final String errorMessage;
+                        if (getFeedsNetworkRequest.getErrorCode() == NetworkRequest.ERROR_IO) {
+                            errorMessage = "Network error";
+                        } else if (getFeedsNetworkRequest.getErrorCode() == NetworkRequest.ERROR_MALFORMED_URL) {
+                            errorMessage = "Malformed URL error";
+                        } else if (getFeedsNetworkRequest.getErrorCode() == getFeedsNetworkRequest.ERROR_PARSING) {
+                            errorMessage = "Error parsing feed";
+                        } else {
+                            errorMessage = "Error unknown";
+                        }
+
+                        callbackThreadHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                callback.onError(errorMessage);
+                            }
+                        });
+                        return;
+                    }
+
+                    //insert new stuff
+                    GetFeedsNetworkRequest.FeedResponse newFeedResponse = feedResponses.get(0);
+                    for (GetFeedsNetworkRequest.ItemResponse itemResponse : newFeedResponse.channelItems) {
+
+                        //check this item and make sure it does not already exist in the db
+                        Cursor cursor = RssItemTable.fetchItemWithGUID(
+                                BloclyApplication.getSharedDataSource().mDatabaseOpenHelper.getReadableDatabase(),
+                                itemResponse.itemGUID);
+
+                        //check if cursor is not empty
+                        //if it is, move on to the next item
+                        if(cursor.moveToFirst() ){
+                            //close cursor
+                            cursor.close();
+                            continue;
+                        }
+                        //close cursor
+                        cursor.close();
+
+                        long itemPubDate = System.currentTimeMillis();
+                        DateFormat dateFormat = new SimpleDateFormat("EEE, dd MM yyyy kk:mm:ss z", Locale.ENGLISH);
+                        try {
+                            itemPubDate = dateFormat.parse(itemResponse.itemPubDate).getTime();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
+                        new RssItemTable.Builder()
+                                .setTitle(itemResponse.itemTitle)
+                                .setDescription(itemResponse.itemDescription)
+                                .setEnclosure(itemResponse.itemEnclosureURL)
+                                .setMIMEType(itemResponse.itemEnclosureMIMEType)
+                                .setGUID(itemResponse.itemGUID)
+                                .setLink(itemResponse.itemURL)
+                                .setPubDate(itemResponse.itemPubDate)
+                                .setRssFeed(feedId)
+                                .insert(mDatabaseOpenHelper.getWritableDatabase());
+
+                    }
+
+                    callbackThreadHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            callback.onSuccess(fetchedFeed);
+                        }
+                    });
+                    return;
+                }
+
+
+
+
+                //if feed is empty
+
+                GetFeedsNetworkRequest getFeedsNetworkRequest = new GetFeedsNetworkRequest(feedUrl);
+                List<GetFeedsNetworkRequest.FeedResponse> feedResponses = getFeedsNetworkRequest.performRequest();
+
+                if (getFeedsNetworkRequest.getErrorCode() != 0) {
+                    final String errorMessage;
+                    if (getFeedsNetworkRequest.getErrorCode() == NetworkRequest.ERROR_IO) {
+                        errorMessage = "Network error";
+                    } else if (getFeedsNetworkRequest.getErrorCode() == NetworkRequest.ERROR_MALFORMED_URL) {
+                        errorMessage = "Malformed URL error";
+                    } else if (getFeedsNetworkRequest.getErrorCode() == getFeedsNetworkRequest.ERROR_PARSING) {
+                        errorMessage = "Error parsing feed";
+                    } else {
+                        errorMessage = "Error unknown";
+                    }
+
+                    callbackThreadHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            callback.onError(errorMessage);
+                        }
+                    });
+                    return;
+                }
+
+                GetFeedsNetworkRequest.FeedResponse newFeedResponse = feedResponses.get(0);
+                long newFeedId = new RssFeedTable.Builder()
+                        .setFeedURL(newFeedResponse.channelFeedURL)
+                        .setSiteURL(newFeedResponse.channelURL)
+                        .setTitle(newFeedResponse.channelTitle)
+                        .setDescription(newFeedResponse.channelDescription)
+                        .insert(mDatabaseOpenHelper.getWritableDatabase());
+
+                for (GetFeedsNetworkRequest.ItemResponse itemResponse : newFeedResponse.channelItems) {
+                    long itemPubDate = System.currentTimeMillis();
+                    DateFormat dateFormat = new SimpleDateFormat("EEE, dd MM yyyy kk:mm:ss z", Locale.ENGLISH);
+                    try {
+                        itemPubDate = dateFormat.parse(itemResponse.itemPubDate).getTime();
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
+                    new RssItemTable.Builder()
+                            .setTitle(itemResponse.itemTitle)
+                            .setDescription(itemResponse.itemDescription)
+                            .setEnclosure(itemResponse.itemEnclosureURL)
+                            .setMIMEType(itemResponse.itemEnclosureMIMEType)
+                            .setGUID(itemResponse.itemGUID)
+                            .setLink(itemResponse.itemURL)
+                            .setPubDate(itemResponse.itemPubDate)
+                            .setRssFeed(newFeedId)
+                            .insert(mDatabaseOpenHelper.getWritableDatabase());
+
+                }
+
+                Cursor newFeedCursor = mRssFeedTable.fetchRow(mDatabaseOpenHelper.getReadableDatabase(), newFeedId);
+                newFeedCursor.moveToFirst();
+                final RssFeed fetchedFeed = feedFromCursor(newFeedCursor);
+                newFeedCursor.close();
+                callbackThreadHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onSuccess(fetchedFeed);
+                    }
+                });
+            }
+        });
+    }
+
+
+
+
     public void fetchNewFeed(final String feedUrl, final Callback<RssFeed> callback) {
 
         final Handler callbackThreadHandler = new Handler();
@@ -59,7 +229,7 @@ public class DataSource {
             @Override
             public void run() {
 
-                Cursor existingFeedCursor = RssFeedTable.fecthFeedWithURL(mDatabaseOpenHelper.getReadableDatabase(), feedUrl);
+                Cursor existingFeedCursor = RssFeedTable.fetchFeedWithURL(mDatabaseOpenHelper.getReadableDatabase(), feedUrl);
                 if (existingFeedCursor.moveToFirst()) {
                     final RssFeed fetchedFeed = feedFromCursor(existingFeedCursor);
                     existingFeedCursor.close();

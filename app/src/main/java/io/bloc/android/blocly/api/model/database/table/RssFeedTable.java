@@ -78,7 +78,7 @@ public class RssFeedTable extends Table {
         return getString(cursor, COLUMN_DESCRIPTION);
     }
 
-    public static Cursor fecthFeedWithURL(SQLiteDatabase readonlyDatabase, String feedURL) {
+    public static Cursor fetchFeedWithURL(SQLiteDatabase readonlyDatabase, String feedURL) {
         return readonlyDatabase.query(true, NAME, null, COLUMN_FEED_URL + " = ?", new String[]{feedURL},
                 null, null, null, null);
     }
