@@ -48,6 +48,9 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
         this.feedUrls = feedUrls;
     }
 
+    String stringPattern = "iframe\\s+src=\"https:\\/\\/www\\.youtube\\.com\\/watch\\?v=(\\w+)\"";
+    Pattern pattern = Pattern.compile(stringPattern);
+
     @Override
     public List<FeedResponse> performRequest() {
         List<FeedResponse> responseFeeds = new ArrayList<FeedResponse>(feedUrls.length);
@@ -220,8 +223,4 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
 
     }
 
-    public static Pattern getRegex(String preString) {
-        Pattern pattern = Pattern.compile(preString);
-        return pattern;
-    }
 }
