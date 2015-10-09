@@ -1,6 +1,8 @@
 package io.bloc.android.blocly.api.network;
 
 
+import android.util.Log;
+
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 import org.w3c.dom.Document;
@@ -90,6 +92,7 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
                             itemTitle = tagNode.getTextContent();
                         } else if(XML_TAG_DESCRIPTION.equalsIgnoreCase(tag)) {
                             String descriptionText = tagNode.getTextContent();
+                            Log.i(TAG, descriptionText);
                             itemImageURL = parseImageFromHTML(descriptionText);
                             itemDescription = parseTextFromHTML(descriptionText);
                         } else if (XML_TAG_ENCLOSURE.equalsIgnoreCase(tag)) {
