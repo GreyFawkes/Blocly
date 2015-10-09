@@ -1,8 +1,6 @@
 package io.bloc.android.blocly.api.network;
 
 
-import android.util.Log;
-
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 import org.w3c.dom.Document;
@@ -15,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -60,9 +59,13 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
                 DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
                 Document xmlDocument = docBuilder.parse(inputStream);
 
+
+
                 String channelTitle = optFirstTagFromDocument(xmlDocument, XML_TAG_TITLE);
                 String channelDescription = optFirstTagFromDocument(xmlDocument, XML_TAG_DESCRIPTION);
                 String channelURL = optFirstTagFromDocument(xmlDocument, XML_TAG_LINK);
+
+
 
                 NodeList allItemNodes = xmlDocument.getElementsByTagName(XML_TAG_ITEM);
                 List<ItemResponse> responseItems = new ArrayList<ItemResponse>(allItemNodes.getLength());
@@ -92,11 +95,9 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
                             itemTitle = tagNode.getTextContent();
                         } else if(XML_TAG_DESCRIPTION.equalsIgnoreCase(tag)) {
                             String descriptionText = tagNode.getTextContent();
-                            Log.i(TAG, descriptionText);
                             itemImageURL = parseImageFromHTML(descriptionText);
                             itemDescription = parseTextFromHTML(descriptionText);
                         } else if (XML_TAG_ENCLOSURE.equalsIgnoreCase(tag)) {
-
                             NamedNodeMap enclosureAttributes = tagNode.getAttributes();
                             itemEnclosureURL = enclosureAttributes.getNamedItem(XML_ATTRIBUTE_URL).getTextContent();
                             itemEnclosureMIMEType = enclosureAttributes.getNamedItem(XML_ATTRIBUTE_TYPE).getTextContent();
@@ -218,5 +219,10 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
             this.itemEnclosureMIMEType = itemEnclosureMIMEType;
         }
 
+    }
+
+    public static Pattern getRegex(String preString) {
+        Pattern pattern = Pattern.compile(preString);
+        return pattern;
     }
 }
