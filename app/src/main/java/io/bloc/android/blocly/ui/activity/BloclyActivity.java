@@ -46,6 +46,11 @@ public class BloclyActivity extends ActionBarActivity
         NavigationDrawerAdapter.NavigationDrawerAdapterDataSource,
         RssItemListFragment.Delegate{
 
+    private static final String TAG_FRAG_INBOX = "inboxFragment";
+    private static final String TAG_FRAG_FEED = "feedFragment.";
+
+
+
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
     private NavigationDrawerAdapter mNavigationDrawerAdapter;
@@ -164,6 +169,9 @@ public class BloclyActivity extends ActionBarActivity
         navigationRecyclerView.setItemAnimator(new DefaultItemAnimator());
         navigationRecyclerView.setAdapter(mNavigationDrawerAdapter);
 
+        //here is where some editing might be done
+        // other places to look - DataSource and NavigationDrawer
+
         BloclyApplication.getSharedDataSource().fetchAllFeeds(new DataSource.Callback<List<RssFeed>>() {
             @Override
             public void onSuccess(List<RssFeed> rssFeeds) {
@@ -171,7 +179,7 @@ public class BloclyActivity extends ActionBarActivity
                 mNavigationDrawerAdapter.notifyDataSetChanged();
                 getFragmentManager()
                         .beginTransaction()
-                        .add(R.id.fl_activity_blocly, RssItemListFragment.fragmentForRssFeed(rssFeeds.get(0)))
+                        .add(R.id.fl_activity_blocly, RssItemListFragment.fragmentForRssFeed(rssFeeds.get(0)), TAG_FRAG_INBOX)
                         .commit();
             }
 
@@ -235,6 +243,35 @@ public class BloclyActivity extends ActionBarActivity
     @Override
     public void didSelectNavigationOption(NavigationDrawerAdapter adapter, NavigationDrawerAdapter.NavigationOption navigationOption) {
         mDrawerLayout.closeDrawers();
+
+
+        if (navigationOption.equals(NavigationDrawerAdapter.NavigationOption.NAVIGATION_OPTION_INBOX)) {
+
+            BloclyApplication.getSharedDataSource().fetchAllFeeds(new DataSource.Callback<List<RssFeed>>() {
+                @Override
+                public void onSuccess(List<RssFeed> rssFeeds) {
+                    mNavigationDrawerAdapter.notifyDataSetChanged();
+                    if (getFragmentManager().findFragmentByTag(TAG_FRAG_INBOX) == null) {
+                        getFragmentManager()
+                                .beginTransaction()
+                                .add(R.id.fl_activity_blocly, RssItemListFragment.fragmentForRssFeed(rssFeeds.get(0)), TAG_FRAG_INBOX)
+                                .commit();
+                    } else {
+                        getFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.fl_activity_blocly, getFragmentManager().findFragmentByTag(TAG_FRAG_INBOX))
+                                .commit();
+                    }
+                }
+
+                @Override
+                public void onError(String errorMessage) {
+                    //nada
+                }
+            });
+
+
+        }
         Toast.makeText(this, "show the " + navigationOption.name(), Toast.LENGTH_SHORT).show();
     }
 
@@ -242,7 +279,37 @@ public class BloclyActivity extends ActionBarActivity
     public void didSelectFeed(NavigationDrawerAdapter adapter, RssFeed feed) {
 
         mDrawerLayout.closeDrawers();
-        Toast.makeText(this, "Show RSS items from " + feed.getTitle(), Toast.LENGTH_SHORT).show();
+        //insert specific feed
+        long rowId = feed.getRowId();
+        final String fragmentTAG = TAG_FRAG_FEED + feed.getTitle();
+
+        BloclyApplication.getSharedDataSource().fetchFeedWithId(rowId, new DataSource.Callback<RssFeed>() {
+                    @Override
+                    public void onSuccess(RssFeed feed) {
+
+                        mNavigationDrawerAdapter.notifyDataSetChanged();
+                        if (getFragmentManager().findFragmentByTag(fragmentTAG) == null) {
+                            getFragmentManager()
+                                    .beginTransaction()
+                                    .add(R.id.fl_activity_blocly, RssItemListFragment.fragmentForRssFeed(feed), fragmentTAG)
+                                    .commit();
+                        } else {
+                            getFragmentManager()
+                                    .beginTransaction()
+                                    .replace(R.id.fl_activity_blocly, getFragmentManager().findFragmentByTag(fragmentTAG))
+                                    .commit();
+                        }
+
+                    }
+
+                    @Override
+                    public void onError(String errorMessage) {
+
+                    }
+                });
+
+
+                Toast.makeText(this, "Show RSS items from " + feed.getTitle(), Toast.LENGTH_SHORT).show();
 
     }
 
