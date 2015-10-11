@@ -27,6 +27,7 @@ import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import io.bloc.android.blocly.BloclyApplication;
 import io.bloc.android.blocly.R;
@@ -49,7 +50,7 @@ public class BloclyActivity extends ActionBarActivity
     private static final String TAG_FRAG_INBOX = "inboxFragment";
     private static final String TAG_FRAG_FEED = "feedFragment.";
 
-
+    private Stack<RssFeed> mRssFeedTitleStack = new Stack<RssFeed>();
 
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
@@ -169,9 +170,6 @@ public class BloclyActivity extends ActionBarActivity
         navigationRecyclerView.setItemAnimator(new DefaultItemAnimator());
         navigationRecyclerView.setAdapter(mNavigationDrawerAdapter);
 
-        //here is where some editing might be done
-        // other places to look - DataSource and NavigationDrawer
-
         BloclyApplication.getSharedDataSource().fetchAllFeeds(new DataSource.Callback<List<RssFeed>>() {
             @Override
             public void onSuccess(List<RssFeed> rssFeeds) {
@@ -181,6 +179,8 @@ public class BloclyActivity extends ActionBarActivity
                         .beginTransaction()
                         .add(R.id.fl_activity_blocly, RssItemListFragment.fragmentForRssFeed(rssFeeds.get(0)), TAG_FRAG_INBOX)
                         .commit();
+
+                mRssFeedTitleStack.add(null);
             }
 
             @Override
@@ -250,18 +250,27 @@ public class BloclyActivity extends ActionBarActivity
             BloclyApplication.getSharedDataSource().fetchAllFeeds(new DataSource.Callback<List<RssFeed>>() {
                 @Override
                 public void onSuccess(List<RssFeed> rssFeeds) {
-                    mNavigationDrawerAdapter.notifyDataSetChanged();
+
+
                     if (getFragmentManager().findFragmentByTag(TAG_FRAG_INBOX) == null) {
                         getFragmentManager()
                                 .beginTransaction()
+                                .detach(getFragmentManager().findFragmentByTag(getCurrentFragmentTag()))
                                 .add(R.id.fl_activity_blocly, RssItemListFragment.fragmentForRssFeed(rssFeeds.get(0)), TAG_FRAG_INBOX)
+                                .addToBackStack(null)
                                 .commit();
+
                     } else {
+
                         getFragmentManager()
                                 .beginTransaction()
-                                .replace(R.id.fl_activity_blocly, getFragmentManager().findFragmentByTag(TAG_FRAG_INBOX))
+                                .detach(getFragmentManager().findFragmentByTag(getCurrentFragmentTag()))
+                                .attach(getFragmentManager().findFragmentByTag(TAG_FRAG_INBOX))
+                                .addToBackStack(null)
                                 .commit();
                     }
+                    mRssFeedTitleStack.add(null);
+
                 }
 
                 @Override
@@ -281,32 +290,38 @@ public class BloclyActivity extends ActionBarActivity
         mDrawerLayout.closeDrawers();
         //insert specific feed
         long rowId = feed.getRowId();
-        final String fragmentTAG = TAG_FRAG_FEED + feed.getTitle();
 
         BloclyApplication.getSharedDataSource().fetchFeedWithId(rowId, new DataSource.Callback<RssFeed>() {
-                    @Override
-                    public void onSuccess(RssFeed feed) {
+            @Override
+            public void onSuccess(RssFeed feed) {
 
-                        mNavigationDrawerAdapter.notifyDataSetChanged();
-                        if (getFragmentManager().findFragmentByTag(fragmentTAG) == null) {
-                            getFragmentManager()
-                                    .beginTransaction()
-                                    .add(R.id.fl_activity_blocly, RssItemListFragment.fragmentForRssFeed(feed), fragmentTAG)
-                                    .commit();
-                        } else {
-                            getFragmentManager()
-                                    .beginTransaction()
-                                    .replace(R.id.fl_activity_blocly, getFragmentManager().findFragmentByTag(fragmentTAG))
-                                    .commit();
-                        }
+                //detach the current fragment from the activity
 
-                    }
+                if (getFragmentManager().findFragmentByTag(TAG_FRAG_FEED + feed.getTitle()) == null) {
+                    getFragmentManager()
+                            .beginTransaction()
+                            .detach(getFragmentManager().findFragmentByTag(getCurrentFragmentTag()))
+                            .add(R.id.fl_activity_blocly, RssItemListFragment.fragmentForRssFeed(feed), TAG_FRAG_FEED + feed.getTitle())
+                            .addToBackStack(null)
+                            .commit();
+                } else {
 
-                    @Override
-                    public void onError(String errorMessage) {
+                    getFragmentManager()
+                            .beginTransaction()
+                            .detach(getFragmentManager().findFragmentByTag(getCurrentFragmentTag()))
+                            .attach(getFragmentManager().findFragmentByTag(TAG_FRAG_FEED + feed.getTitle()))
+                            .addToBackStack(null)
+                            .commit();
+                }
+                mRssFeedTitleStack.add(feed);
 
-                    }
-                });
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+
+            }
+        });
 
 
                 Toast.makeText(this, "Show RSS items from " + feed.getTitle(), Toast.LENGTH_SHORT).show();
@@ -357,5 +372,36 @@ public class BloclyActivity extends ActionBarActivity
     public void onItemVisitClicked(RssItemListFragment rssItemListFragment, RssItem rssItem) {
         Intent visitIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(rssItem.getUrl()));
         startActivity(visitIntent);
+    }
+
+//    private void detachCurrentFragment() {
+//        String previousFragmentTAG;
+//        if (mRssFeedTitleStack.peek() == null) {
+//            previousFragmentTAG = TAG_FRAG_INBOX;
+//        } else {
+//            previousFragmentTAG = TAG_FRAG_FEED + mRssFeedTitleStack.peek().getTitle();
+//        }
+//        getFragmentManager()
+//                .beginTransaction()
+//                .detach(getFragmentManager().findFragmentByTag(previousFragmentTAG))
+//                .commit();
+//    }
+
+    private String getCurrentFragmentTag() {
+        if (mRssFeedTitleStack.peek() == null) {
+            return TAG_FRAG_INBOX;
+        } else {
+            return TAG_FRAG_FEED + mRssFeedTitleStack.peek().getTitle();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(!mRssFeedTitleStack.empty()) {
+            mRssFeedTitleStack.pop();
+            getFragmentManager().popBackStack();
+        } else {
+            super.onBackPressed();
+        }
     }
 }

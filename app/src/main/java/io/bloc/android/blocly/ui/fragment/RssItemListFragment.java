@@ -111,7 +111,7 @@ public class RssItemListFragment extends Fragment
 
                                 if (!rssItems.isEmpty()) {
                                     currentItems.addAll(0, rssItems);
-                                    mItemAdapter.notifyItemRangeInserted(0, rssItems.size());
+                                    mItemAdapter.notifyDataSetChanged();
                                 }
                                 mSwipeRefreshLayout.setRefreshing(false);
                             }
