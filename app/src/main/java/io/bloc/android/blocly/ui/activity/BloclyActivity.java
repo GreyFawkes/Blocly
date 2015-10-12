@@ -297,6 +297,8 @@ public class BloclyActivity extends ActionBarActivity
 
                 //detach the current fragment from the activity
 
+
+
                 if (getFragmentManager().findFragmentByTag(TAG_FRAG_FEED + feed.getTitle()) == null) {
                     getFragmentManager()
                             .beginTransaction()

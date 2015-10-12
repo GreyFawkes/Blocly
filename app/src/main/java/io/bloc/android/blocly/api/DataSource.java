@@ -61,13 +61,13 @@ public class DataSource {
                     .setTitle("IGN")
                     .setDescription("IGN All")
                     .setSiteURL("http://www.ign.com")
-                    .setFeedURL("http://feed.ign.com/ign/all?format=xml")
+                    .setFeedURL("http://feeds.ign.com/ign/all?format=xml")
                     .insert(writableDatabase);
             new RssFeedTable.Builder()
                     .setTitle("Kotaku")
                     .setDescription("Game news, reviews, and awesomeness")
                     .setSiteURL("http://kotaku.com")
-                    .setFeedURL("http://feed.gawker.com/kotaku/full#_ga=1.41426146.1734638996.1420673722")
+                    .setFeedURL("http://feeds.gawker.com/kotaku/full#_ga=1.41426146.1734638996.1420673722")
                     .insert(writableDatabase);
         }
     }
