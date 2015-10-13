@@ -57,6 +57,7 @@ public class BloclyActivity extends ActionBarActivity
 
     private RssItem expandedItem = null;
     private boolean onTablet;
+    private boolean inLandscape;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +65,7 @@ public class BloclyActivity extends ActionBarActivity
         setContentView(R.layout.activity_blocly);
 
         onTablet = findViewById(R.id.fl_activity_blocly_right_pane) != null;
+        inLandscape = (getResources().getConfiguration().orientation == 2);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.tb_activity_blocly);
         setSupportActionBar(toolbar);
@@ -205,7 +207,7 @@ public class BloclyActivity extends ActionBarActivity
         }
         if(item.getItemId() == R.id.action_share) {
             RssItem itemToShare = expandedItem;
-            if(itemToShare == null) {
+            if (itemToShare == null) {
                 return false;
             }
 
@@ -220,6 +222,15 @@ public class BloclyActivity extends ActionBarActivity
 
             startActivity(chooser);
 
+        }else if (item.getItemId() == R.id.action_visit_page){
+            RssItem itemToVisit = expandedItem;
+            if(itemToVisit == null) {
+                return false;
+            }
+
+            Intent visitIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(itemToVisit.getUrl()));
+            startActivity(visitIntent);
+
         } else {
             Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
         }
@@ -230,9 +241,20 @@ public class BloclyActivity extends ActionBarActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-        getMenuInflater().inflate(R.menu.blocly, menu);
-        mMenu = menu;
-        animateSharedItem(expandedItem != null);
+        if (!onTablet){
+
+            getMenuInflater().inflate(R.menu.blocly, menu);
+            mMenu = menu;
+
+            MenuItem shareItem = mMenu.findItem(R.id.action_share);
+            if (onTablet && inLandscape) {
+                shareItem.setEnabled(false);
+                shareItem.setVisible(false);
+            }
+
+            animateSharedItem(expandedItem != null);
+
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -257,10 +279,19 @@ public class BloclyActivity extends ActionBarActivity
     }
 
     private void animateSharedItem(final boolean enabled) {
+
+
         MenuItem shareItem = mMenu.findItem(R.id.action_share);
+        if(onTablet && inLandscape) {
+            shareItem.setEnabled(false);
+            shareItem.setVisible(false);
+            return;
+        }
+
         if(shareItem.isEnabled() == enabled) {
             return;
         }
+
 
         shareItem.setEnabled(enabled);
         final Drawable shareIcon = shareItem.getIcon();
@@ -274,6 +305,7 @@ public class BloclyActivity extends ActionBarActivity
             }
         });
         valueAnimator.start();
+
     }
 
     @Override

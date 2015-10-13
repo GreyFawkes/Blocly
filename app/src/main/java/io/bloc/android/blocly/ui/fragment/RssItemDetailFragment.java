@@ -4,7 +4,10 @@ import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -20,6 +23,7 @@ import io.bloc.android.blocly.BloclyApplication;
 import io.bloc.android.blocly.R;
 import io.bloc.android.blocly.api.DataSource;
 import io.bloc.android.blocly.api.model.RssItem;
+import io.bloc.android.blocly.ui.activity.BloclyActivity;
 
 /**
  * Created by Administrator on 10/6/2015.
@@ -42,10 +46,13 @@ public class RssItemDetailFragment extends Fragment
     TextView title;
     TextView content;
     ProgressBar progressBar;
+    Toolbar toolbar;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
 
         Bundle args = getArguments();
         if(args != null) {
@@ -78,7 +85,22 @@ public class RssItemDetailFragment extends Fragment
         progressBar = (ProgressBar) inflate.findViewById(R.id.pb_fragment_rss_item_detail_header);
         title = (TextView) inflate.findViewById(R.id.tv_fragment_rss_item_detail_title);
         content = (TextView) inflate.findViewById(R.id.tv_fragment_rss_item_detail_content);
+
+        toolbar = (Toolbar) inflate.findViewById(R.id.tb_fragment_rss_item_detail);
+        ((BloclyActivity)getActivity()).setSupportActionBar(toolbar);
+        setHasOptionsMenu(true);
+
+
         return inflate;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+        inflater.inflate(R.menu.blocly_frag_detail, menu);
+        toolbar.setTitle("");
+
+        //super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
